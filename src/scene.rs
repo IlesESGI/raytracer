@@ -3,6 +3,7 @@ use vector::Vector3;
 use rendering::{Intersectable, Ray};
 use std::ops::Mul;
 extern crate rayon;
+use rayon::prelude::*;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Color {
@@ -125,7 +126,7 @@ impl<'a> Intersection<'a> {
 impl Scene {
     pub fn trace(&self, ray: &Ray) -> Option<Intersection> {
         self.elements
-            .iter()
+            .par_iter()
             .filter_map(|e| e.intersect(ray).map(|d| Intersection::new(d, e)))
             .min_by(|i1, i2| i1.distance.partial_cmp(&i2.distance).unwrap())
     }

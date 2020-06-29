@@ -1,15 +1,19 @@
 #[macro_use]
 extern crate serde_derive;
 extern crate image;
+extern crate rayon;
+extern crate indicatif;
+
 pub mod scene;
 mod rendering;
 mod vector;
 mod matrix;
 mod point;
 
+use indicatif::ProgressBar;
+use rayon::prelude::*;
 use scene::{Scene, Color, Intersection};
 use image::{DynamicImage, GenericImage, Rgba, Pixel};
-
 use rendering::{Ray, Intersectable};
 
 fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
@@ -28,15 +32,36 @@ fn get_color(scene: &Scene, ray: &Ray, intersection: &Intersection) -> Color {
 pub fn render(scene: &Scene) -> DynamicImage {
     let mut image = DynamicImage::new_rgb8(scene.width, scene.height);
     let black = Rgba::from_channels(0, 0, 0, 0);
+
+    let pb = ProgressBar::new((scene.width * scene.height).into());
+
+    let rows: Vec<Vec<image::Rgba<u8>>> = (0..scene.width)
+    .into_par_iter()
+    .map(|j| {
+        (0..scene.height)
+            .into_par_iter()
+            .map(|i| {
+                let ray = Ray::create_prime(j, i, scene);
+                let intersection = scene.trace(&ray);
+                let color = intersection.map(|i| to_rgba(&get_color(scene, &ray, &i)))
+                    .unwrap_or(black);
+                pb.inc(1);
+                color
+            })
+            .collect()
+    })
+    .collect();
+
+    // Je n'arrivais pas à faire du parallelisme directement avec la structure image donc je suis passé par un vecteur de vecteur de Pixel
+
     for x in 0..scene.width {
         for y in 0..scene.height {
-            let ray = Ray::create_prime(x, y, scene);
-            let intersection = scene.trace(&ray);
-            let color = intersection.map(|i| to_rgba(&get_color(scene, &ray, &i)))
-                .unwrap_or(black);
-            image.put_pixel(x, y, color);
+            image.put_pixel(x, y, rows[x as usize][y as usize]);
         }
     }
+
+    pb.finish_with_message("done");
+
     image
 }
 

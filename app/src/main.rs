@@ -4,12 +4,14 @@ extern crate serde_json;
 extern crate raytracer;
 extern crate image;
 
+use std::time::Instant;
 use clap::{Arg, App};
 use std::fs::{File, OpenOptions};
 use raytracer::scene::*;
 use image::ImageFormat;
 
 fn main() {
+    let before = Instant::now();
     let app = App::new("raytracer")
         .version("1.0")
         .author("Ilès")
@@ -35,4 +37,5 @@ fn main() {
     let image = raytracer::render(&scene);
 
     image.save(&mut image_file, ImageFormat::PPM).unwrap();
+    println!("Image generated in : {:.2?}", before.elapsed());
 }
