@@ -9,6 +9,7 @@ Pour éxectuer le programme :
     Exemple : rustup run nightly cargo run --release scenes/objects.json image.ppm true
 
 Ce programme génère une image au format PPM de ce fait elle modifiable avec la lib "libppm" du semestre précedent. Elle se trouve dans le dossier /app.
+Guide suivi : https://bheisler.github.io/post/writing-raytracer-in-rust-part-1/
 
 ## Benchmarking
 
