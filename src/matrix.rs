@@ -1,5 +1,5 @@
-use std::ops::{Mul, Index, IndexMut};
 use point::Point;
+use std::ops::{Index, IndexMut, Mul};
 use vector::Vector3;
 
 #[derive(Clone, Debug)]

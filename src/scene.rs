@@ -1,7 +1,7 @@
 use point::Point;
-use vector::Vector3;
 use rendering::{Intersectable, Ray};
 use std::ops::Mul;
+use vector::Vector3;
 extern crate rayon;
 use rayon::prelude::*;
 
@@ -64,7 +64,6 @@ pub struct Plane {
     pub color: Color,
     pub albedo: f32,
 }
-
 
 #[derive(Deserialize, Debug)]
 pub enum Element {
